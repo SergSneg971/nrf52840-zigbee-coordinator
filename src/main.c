@@ -15,6 +15,7 @@ static serial_send_data_cb_t send_cb = NULL;
 static serial_recv_data_cb_t recv_cb = NULL;
 
 RING_BUF_DECLARE(rx_ringbuf, 1024);
+RING_BUF_DECLARE(tx_ringbuf, 1024);
 
 static void uart_irq_handler(const struct device *dev, void *user_data)
 {
@@ -29,6 +30,19 @@ static void uart_irq_handler(const struct device *dev, void *user_data)
                 if (recv_cb != NULL) {
                     recv_cb(buf, (zb_ushort_t)len);
                 }
+            }
+        }
+
+        if (uart_irq_tx_ready(dev)) {
+            uint8_t buf;
+            uint32_t len = ring_buf_get(&tx_ringbuf, buf, sizeof(buf));
+            if (len > 0) {
+                int sent = uart_fifo_fill(dev, buf, len);
+                if (sent < (int)len) {
+                    /* Если USB FIFO заполнился, остаток уйдет в следующем прерывании */
+                }
+            } else {
+                uart_irq_tx_disable(dev);
             }
         }
     }
@@ -50,19 +64,12 @@ void zb_osif_serial_set_cb_recv_data(serial_recv_data_cb_t cb)
 
 void zb_osif_serial_send_data(zb_uint8_t *buf, zb_ushort_t len)
 {
-    uint32_t dtr = 0;
-
     if (!device_is_ready(uart_dev)) {
         return;
     }
 
-    /* Отправляем в USB только если хост открыл порт (DTR=1), чтобы не зависать */
-    uart_line_ctrl_get(uart_dev, UART_LINE_CTRL_DTR, &dtr);
-    if (dtr) {
-        for (zb_ushort_t i = 0; i < len; i++) {
-            uart_poll_out(uart_dev, buf[i]);
-        }
-    }
+    ring_buf_put(&tx_ringbuf, buf, len);
+    uart_irq_tx_enable(uart_dev);
 
     if (send_cb != NULL) {
         send_cb(len);
@@ -85,10 +92,8 @@ int main(void)
         return 0;
     }
 
-    /* 3 секунды паузы, чтобы Windows/Linux успели определить USB COM-порт */
-    k_sleep(K_SECONDS(3));
+    k_sleep(K_SECONDS(2));
 
-    /* Гасим синий диод — сигнал, что USB готов и запускается Zigbee */
     if (gpio_is_ready_dt(&led)) {
         gpio_pin_set_dt(&led, 0);
     }
