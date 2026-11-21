@@ -5,7 +5,12 @@ mbr:
 
 app:
   address: 0x1000
-  size: 0xe7000
+  size: 0xe6000
+  region: flash_primary
+
+zboss_product_config:
+  address: 0xe7000
+  size: 0x1000
   region: flash_primary
 
 zboss_nvram:
