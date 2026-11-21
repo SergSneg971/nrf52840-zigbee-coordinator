@@ -21,7 +21,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          apt-get update && apt-get install -y --no-install-recommends ccache libyaml-0-2
+          apt-get update && apt-get install -y --no-install-recommends ccache libyaml-0-2 wget python3
 
       - name: Cache ccache
         uses: actions/cache@v4
@@ -43,14 +43,19 @@ jobs:
           source /workdir/zephyr/zephyr-env.sh
 
           ccache -z
-          west build -b nrf52840dongle/nrf52840 -d build -- \
+          west build -b nrf52840dk/nrf52840 -d build -- \
             -DDTC_OVERLAY_FILE="$GITHUB_WORKSPACE/app.overlay" \
             -DPM_STATIC_YML_FILE="$GITHUB_WORKSPACE/pm_static.yml" \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-
-
           ccache -s
+
+      - name: Convert HEX to Adafruit UF2
+        shell: bash
+        run: |
+          wget -O uf2conv.py https://githubusercontent.com
+          wget -O uf2families.json https://githubusercontent.com
+          python3 uf2conv.py build/zephyr/zephyr.hex -c -f 0xADA52840 -o build/zephyr/nicenano_coordinator.uf2
 
       - name: Upload Firmware Artifacts
         uses: actions/upload-artifact@v4
@@ -58,4 +63,4 @@ jobs:
           name: zigbee-coordinator-firmware
           path: |
             build/zephyr/zephyr.hex
-            build/zephyr/zephyr.uf2
+            build/zephyr/nicenano_coordinator.uf2
