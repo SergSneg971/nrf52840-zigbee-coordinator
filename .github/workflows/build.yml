@@ -64,5 +64,6 @@ jobs:
         with:
           name: zigbee-coordinator-firmware
           path: |
-            build/zephyr/zephyr.hex
-            build/zephyr/nicenano_coordinator.uf2
+            build/ncp/zephyr/zephyr.hex
+            build/ncp/zephyr/zephyr.uf2
+
