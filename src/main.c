@@ -1,5 +1,6 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
+#include <zephyr/drivers/gpio.h>
 #include <zephyr/drivers/uart.h>
 #include <zephyr/sys/ring_buffer.h>
 #include <zephyr/usb/usb_device.h>
@@ -8,6 +9,10 @@
 #include <zb_nrf_platform.h>
 
 static const struct device *uart_dev = DEVICE_DT_GET(DT_CHOSEN(zigbee_uart));
+
+#if DT_NODE_HAS_STATUS(DT_ALIAS(led0), okay)
+static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(DT_ALIAS(led0), gpios);
+#endif
 
 static serial_send_data_cb_t send_cb = NULL;
 static serial_recv_data_cb_t recv_cb = NULL;
@@ -68,12 +73,22 @@ void zb_osif_serial_recv_data(zb_uint8_t *buf, zb_ushort_t len)
 
 int main(void)
 {
+#if DT_NODE_HAS_STATUS(DT_ALIAS(led0), okay)
+    if (gpio_is_ready_dt(&led)) {
+        gpio_pin_configure_dt(&led, GPIO_OUTPUT_ACTIVE);
+        for (int i = 0; i < 6; i++) {
+            gpio_pin_toggle_dt(&led);
+            k_sleep(K_MSEC(150));
+        }
+        gpio_pin_set_dt(&led, 1);
+    }
+#endif
+
     int ret = usb_enable(NULL);
     if (ret != 0 && ret != -EALREADY) {
         return 0;
     }
 
-    /* Даем USB CDC ACM время на инициализацию перед стартом ZBOSS NCP */
     k_sleep(K_MSEC(500));
 
     zigbee_enable();
