@@ -43,7 +43,7 @@ jobs:
           source /workdir/zephyr/zephyr-env.sh
 
           ccache -z
-          west build -b nice_nano_v2 -d build -- \
+          west build -b adafruit_itsybitsy/nrf52840 -d build -- \
            -DDTC_OVERLAY_FILE="$GITHUB_WORKSPACE/app.overlay" \
            -DPM_STATIC_YML_FILE="$GITHUB_WORKSPACE/pm_static.yml" \
            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
