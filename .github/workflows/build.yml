@@ -43,11 +43,12 @@ jobs:
           source /workdir/zephyr/zephyr-env.sh
 
           ccache -z
-          west build -b nrf52840dk/nrf52840 -d build -- \
+          west build -b xiao_ble -d build -- \
             -DDTC_OVERLAY_FILE="$GITHUB_WORKSPACE/app.overlay" \
             -DPM_STATIC_YML_FILE="$GITHUB_WORKSPACE/pm_static.yml" \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+
           ccache -s
 
       - name: Convert HEX to Adafruit UF2
