@@ -61,9 +61,9 @@ void zb_osif_serial_send_data(zb_uint8_t *buf, zb_ushort_t len)
     }
 }
 
-zb_ushort_t zb_osif_serial_recv_data(zb_uint8_t *buf, zb_ushort_t len)
+void zb_osif_serial_recv_data(zb_uint8_t *buf, zb_ushort_t len)
 {
-    return (zb_ushort_t)ring_buf_get(&rx_ringbuf, buf, len);
+    ring_buf_get(&rx_ringbuf, buf, len);
 }
 
 int main(void)
