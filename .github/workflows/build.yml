@@ -43,11 +43,13 @@ jobs:
           source /workdir/zephyr/zephyr-env.sh
 
           ccache -z
-          west build -b adafruit_itsybitsy/nrf52840 -d build -- \
+          west build -b adafruit_itsybitsy/nrf52840 /workdir/nrf/samples/zigbee/ncp -d build -- \
+           -DEXTRA_CONF_FILE="$GITHUB_WORKSPACE/prj.conf" \
            -DDTC_OVERLAY_FILE="$GITHUB_WORKSPACE/app.overlay" \
            -DPM_STATIC_YML_FILE="$GITHUB_WORKSPACE/pm_static.yml" \
            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+
 
 
           ccache -s
