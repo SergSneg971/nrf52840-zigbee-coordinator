@@ -43,11 +43,11 @@ jobs:
           source /workdir/zephyr/zephyr-env.sh
 
           ccache -z
-          west build -b xiao_ble -d build -- \
-            -DDTC_OVERLAY_FILE="$GITHUB_WORKSPACE/app.overlay" \
-            -DPM_STATIC_YML_FILE="$GITHUB_WORKSPACE/pm_static.yml" \
-            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
-            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+          west build -b promicro_nrf52840/nrf52840/uf2 -d build -- \
+           -DDTC_OVERLAY_FILE="$GITHUB_WORKSPACE/app.overlay" \
+           -DPM_STATIC_YML_FILE="$GITHUB_WORKSPACE/pm_static.yml" \
+           -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+           -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
           ccache -s
 
