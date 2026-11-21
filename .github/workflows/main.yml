@@ -34,17 +34,13 @@ jobs:
       - name: Build firmware
         shell: bash
         run: |
-          # Автоматически находим west и zephyr-env.sh в контейнере
-          WEST_BIN=$(find / -name "west" -type f -executable 2>/dev/null | head -n 1)
-          ZEPHYR_ENV=$(find / -name "zephyr-env.sh" 2>/dev/null | head -n 1)
+          TOOLCHAIN_DIR=$(find /root/ncs/toolchains -maxdepth 1 -mindepth 1 -type d | head -n 1)
+          export PATH="$TOOLCHAIN_DIR/usr/local/bin:$TOOLCHAIN_DIR/usr/bin:$TOOLCHAIN_DIR/opt/zephyr-sdk/arm-zephyr-eabi/bin:$PATH"
+          export LD_LIBRARY_PATH="$TOOLCHAIN_DIR/usr/local/lib:$TOOLCHAIN_DIR/usr/lib:$LD_LIBRARY_PATH"
+          export ZEPHYR_TOOLCHAIN_VARIANT=zephyr
+          export ZEPHYR_SDK_INSTALL_DIR="$TOOLCHAIN_DIR/opt/zephyr-sdk"
           
-          export PATH="$(dirname "$WEST_BIN"):$PATH"
-          if [ -n "$ZEPHYR_ENV" ]; then
-            source "$ZEPHYR_ENV"
-          fi
-
-          echo "Using west: $(which west)"
-          echo "ZEPHYR_BASE: $ZEPHYR_BASE"
+          source /workdir/zephyr/zephyr-env.sh
 
           ccache -z
           west build -b nrf52840dk/nrf52840 -d build -- \
