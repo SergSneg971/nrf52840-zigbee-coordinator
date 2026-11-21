@@ -19,9 +19,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install ccache
+      - name: Install dependencies
         run: |
-          apt-get update && apt-get install -y --no-install-recommends ccache
+          apt-get update && apt-get install -y --no-install-recommends ccache libyaml-0-2
 
       - name: Cache ccache
         uses: actions/cache@v4
@@ -36,7 +36,7 @@ jobs:
         run: |
           TOOLCHAIN_DIR=$(find /root/ncs/toolchains -maxdepth 1 -mindepth 1 -type d | head -n 1)
           export PATH="$TOOLCHAIN_DIR/usr/local/bin:$TOOLCHAIN_DIR/usr/bin:$TOOLCHAIN_DIR/opt/zephyr-sdk/arm-zephyr-eabi/bin:$PATH"
-          export LD_LIBRARY_PATH="$TOOLCHAIN_DIR/usr/local/lib:$TOOLCHAIN_DIR/usr/lib:$LD_LIBRARY_PATH"
+          export LD_LIBRARY_PATH="$TOOLCHAIN_DIR/usr/local/lib:$TOOLCHAIN_DIR/usr/lib:$TOOLCHAIN_DIR/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH"
           export ZEPHYR_TOOLCHAIN_VARIANT=zephyr
           export ZEPHYR_SDK_INSTALL_DIR="$TOOLCHAIN_DIR/opt/zephyr-sdk"
           
@@ -44,8 +44,8 @@ jobs:
 
           ccache -z
           west build -b nrf52840dk/nrf52840 -d build -- \
-            -DDTC_OVERLAY_FILE=app.overlay \
-            -DPM_STATIC_YML_FILE=pm_static.yml \
+            -DDTC_OVERLAY_FILE="$GITHUB_WORKSPACE/app.overlay" \
+            -DPM_STATIC_YML_FILE="$GITHUB_WORKSPACE/pm_static.yml" \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
           ccache -s
