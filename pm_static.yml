@@ -1,0 +1,24 @@
+mbr:
+  address: 0x0
+  size: 0x1000
+  region: flash_primary
+
+app:
+  address: 0x1000
+  size: 0xe7000
+  region: flash_primary
+
+zboss_nvram:
+  address: 0xe8000
+  size: 0x4000
+  region: flash_primary
+
+settings_storage:
+  address: 0xec000
+  size: 0x8000
+  region: flash_primary
+
+adafruit_uf2_bootloader:
+  address: 0xf4000
+  size: 0xc000
+  region: flash_primary
