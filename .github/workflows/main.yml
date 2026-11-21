@@ -32,7 +32,16 @@ jobs:
             ccache-coordinator-
 
       - name: Build firmware
+        shell: bash
         run: |
+          export PATH="$HOME/.local/bin:/root/.local/bin:$PATH"
+          # Подключаем окружение nRF Connect SDK, если оно в /workdir или /opt/ncs
+          if [ -f /workdir/zephyr/zephyr-env.sh ]; then
+            source /workdir/zephyr/zephyr-env.sh
+          elif [ -f /opt/ncs/zephyr/zephyr-env.sh ]; then
+            source /opt/ncs/zephyr/zephyr-env.sh
+          fi
+          
           ccache -z
           west build -b nrf52840dk/nrf52840 -d build -- \
             -DDTC_OVERLAY_FILE=app.overlay \
