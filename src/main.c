@@ -1,6 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/drivers/uart.h>
+#include <zephyr/sys/ring_buffer.h>
 #include <zephyr/usb/usb_device.h>
 #include <zboss_api.h>
 #include <zb_osif.h>
@@ -11,7 +12,7 @@ static const struct device *uart_dev = DEVICE_DT_GET(DT_CHOSEN(zigbee_uart));
 static serial_send_data_cb_t send_cb = NULL;
 static serial_recv_data_cb_t recv_cb = NULL;
 
-static uint8_t rx_byte;
+RING_BUF_DECLARE(rx_ringbuf, 1024);
 
 static void uart_irq_handler(const struct device *dev, void *user_data)
 {
@@ -19,9 +20,13 @@ static void uart_irq_handler(const struct device *dev, void *user_data)
 
     while (uart_irq_update(dev) && uart_irq_is_pending(dev)) {
         if (uart_irq_rx_ready(dev)) {
-            int len = uart_fifo_read(dev, &rx_byte, 1);
-            if (len > 0 && recv_cb != NULL) {
-                recv_cb(&rx_byte, (zb_ushort_t)len);
+            uint8_t buf[64];
+            int len = uart_fifo_read(dev, buf, sizeof(buf));
+            if (len > 0) {
+                ring_buf_put(&rx_ringbuf, buf, len);
+                if (recv_cb != NULL) {
+                    recv_cb(buf, (zb_ushort_t)len);
+                }
             }
         }
     }
@@ -54,6 +59,11 @@ void zb_osif_serial_send_data(zb_uint8_t *buf, zb_ushort_t len)
     if (send_cb != NULL) {
         send_cb(len);
     }
+}
+
+zb_ushort_t zb_osif_serial_recv_data(zb_uint8_t *buf, zb_ushort_t len)
+{
+    return (zb_ushort_t)ring_buf_get(&rx_ringbuf, buf, len);
 }
 
 int main(void)
