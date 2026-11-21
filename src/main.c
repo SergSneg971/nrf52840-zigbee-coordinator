@@ -52,7 +52,7 @@ void zb_osif_serial_send_data(zb_uint8_t *buf, zb_ushort_t len)
     }
 
     if (send_cb != NULL) {
-        send_cb();
+        send_cb(len);
     }
 }
 
