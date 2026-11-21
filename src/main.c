@@ -11,6 +11,7 @@ int main(void)
         return 0;
     }
 
+    /* Запуск стека Zigbee (в режиме NCP при включенном CONFIG_ZIGBEE_LIBRARY_NCP_DEV) */
     zigbee_enable();
 
     while (1) {
