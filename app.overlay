@@ -1,7 +1,6 @@
 / {
     chosen {
-        zephyr,uart-mcumgr = &cdc_acm_uart0;
-        zigbee,uart = &cdc_acm_uart0;
+        ncs,zigbee-uart = &cdc_acm_uart0;
     };
 
     leds {
@@ -17,10 +16,7 @@
     };
 };
 
-&usbd {
-    compatible = "nordic,nrf-usbd";
-    status = "okay";
-
+&zephyr_udc0 {
     cdc_acm_uart0: cdc_acm_uart0 {
         compatible = "zephyr,cdc-acm-uart";
     };
