@@ -59,6 +59,11 @@ jobs:
         run: |
           python3 /workdir/zephyr/scripts/build/uf2conv.py build/zephyr/zephyr.hex -c -f 0xADA52840 -o build/zephyr/nicenano_coordinator.uf2
 
+            - name: Convert HEX to Adafruit UF2
+        shell: bash
+        run: |
+          python3 /workdir/zephyr/scripts/build/uf2conv.py build/ncp/zephyr/zephyr.hex -c -f 0xADA52840 -o build/ncp/zephyr/nicenano_coordinator.uf2
+
       - name: Upload Firmware Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -66,4 +71,4 @@ jobs:
           path: |
             build/ncp/zephyr/zephyr.hex
             build/ncp/zephyr/zephyr.uf2
-
+            build/ncp/zephyr/nicenano_coordinator.uf2
