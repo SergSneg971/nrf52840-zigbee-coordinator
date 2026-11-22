@@ -50,16 +50,10 @@ jobs:
            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
-
-
           ccache -s
 
+   
       - name: Convert HEX to Adafruit UF2
-        shell: bash
-        run: |
-          python3 /workdir/zephyr/scripts/build/uf2conv.py build/zephyr/zephyr.hex -c -f 0xADA52840 -o build/zephyr/nicenano_coordinator.uf2
-
-            - name: Convert HEX to Adafruit UF2
         shell: bash
         run: |
           python3 /workdir/zephyr/scripts/build/uf2conv.py build/ncp/zephyr/zephyr.hex -c -f 0xADA52840 -o build/ncp/zephyr/nicenano_coordinator.uf2
